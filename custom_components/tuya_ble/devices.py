@@ -25,7 +25,7 @@ from .tuya_ble import (
     TuyaBLEDevice,
     TuyaBLEDeviceCredentials,
 )
-
+from .sensor import DPMapping
 from .cloud import HASSTuyaBLEDeviceManager
 from .const import (
     DEVICE_DEF_MANUFACTURER,
@@ -291,6 +291,12 @@ devices_database: dict[str, TuyaBLECategoryInfo] = {
                 ["bf35a75vzk0jfhas", "gvygg3m8"],
                 TuyaBLEProductInfo(
                     name="SGS01 Soil Sensor",
+                    sensors=[
+                        DPMapping(dp_id=5, name="temp_current", unit="°C", scale=1),
+                        DPMapping(dp_id=6, name="humidity", unit="%", scale=0),
+                        DPMapping(dp_id=3, name="battery_percentage", unit="%", scale=0),
+                        DPMapping(dp_id=9, name="temp_unit_convert", mapping={0: "c", 1: "f"}),
+                    ],
                 ),
             ),
         },
