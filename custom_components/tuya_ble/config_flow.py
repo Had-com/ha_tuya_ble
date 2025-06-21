@@ -96,9 +96,12 @@ async def _try_login(
         else:
             data[CONF_AUTH_TYPE] = AuthType.SMART_HOME
 
+        _LOGGER.debug("🔐 Trying Tuya login with app_type='%s'", app_type)
+
         response = await manager._login(data, True)
 
         if response.get(TUYA_RESPONSE_SUCCESS, False):
+            _LOGGER.info("✅ Tuya login successful with app_type='%s'", app_type)
             return data
 
     errors["base"] = "login_error"
@@ -110,6 +113,7 @@ async def _try_login(
             }
         )
 
+    _LOGGER.warning("❌ Tuya login failed. Response: %s", response)
     return None
 
 
@@ -132,6 +136,8 @@ async def _show_login_form(
         )
 
     def_country_name: str | None = flow.hass.data.get("tuya_ble_def_country")
+
+    _LOGGER.debug("🧭 Showing login form with default country: %s", def_country_name)
 
     return flow.async_show_form(
         step_id="login",
@@ -214,6 +220,7 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
         self._get_device_info_error = False
 
     async def async_step_bluetooth(self, discovery_info: BluetoothServiceInfoBleak) -> FlowResult:
+        _LOGGER.debug("🔎 Discovered device via Bluetooth: %s", discovery_info.address)
         await self.async_set_unique_id(discovery_info.address)
         self._abort_if_unique_id_configured()
         self._discovery_info = discovery_info
@@ -226,12 +233,14 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
         return await self.async_step_login()
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        _LOGGER.debug("👤 User-initiated config flow")
         if self._manager is None:
             self._manager = HASSTuyaBLEDeviceManager(self.hass, self._data)
         await self._manager.build_cache()
         return await self.async_step_login()
 
     async def async_step_login(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        _LOGGER.debug("📲 Entering login step")
         data: dict[str, Any] | None = None
         errors: dict[str, str] = {}
         placeholders: dict[str, Any] = {}
