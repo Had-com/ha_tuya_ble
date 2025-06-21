@@ -288,11 +288,9 @@ devices_database: dict[str, TuyaBLECategoryInfo] = {
     "zwjcy": TuyaBLECategoryInfo(
         products={
             **dict.fromkeys(
-                [
-                    ["bf35a75vzk0jfhas","gvygg3m8"],
-                ],
+                ["bf35a75vzk0jfhas", "gvygg3m8"],
                 TuyaBLEProductInfo(
-                    name="Soil moisture sensor (SGS01)",
+                    name="SGS01 Soil Sensor",
                 ),
             ),
         },
