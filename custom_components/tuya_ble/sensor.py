@@ -269,7 +269,6 @@ mapping: dict[str, TuyaBLECategorySensorMapping] = {
             ],
         },
     ),
-    _LOGGER.info("✅ Tuya BLE sensor integration loaded - custom version in use")
     "zwjcy": TuyaBLECategorySensorMapping(
         products={
             **dict.fromkeys(
@@ -458,6 +457,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    _LOGGER.info("✅ Tuya BLE sensor integration loaded - custom version in use")
     """Set up the Tuya BLE sensors."""
     data: TuyaBLEData = hass.data[DOMAIN][entry.entry_id]
     mappings = get_mapping_by_device(data.device)
