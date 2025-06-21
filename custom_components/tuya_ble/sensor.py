@@ -269,10 +269,11 @@ mapping: dict[str, TuyaBLECategorySensorMapping] = {
             ],
         },
     ),
+    _LOGGER.info("✅ Tuya BLE sensor integration loaded - custom version in use")
     "zwjcy": TuyaBLECategorySensorMapping(
         products={
             **dict.fromkeys(
-                ["bf35a75vzk0jfhas", "bf072a9kurxatafg"],  # הוספנו את המכשיר שלך
+                ["bf35a75vzk0jfhas", "bf072a9kurxatafg"],  
                 [
                     TuyaBLETemperatureMapping(
                         dp_id=1,
