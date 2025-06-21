@@ -269,6 +269,51 @@ mapping: dict[str, TuyaBLECategorySensorMapping] = {
             ],
         },
     ),
+    "zwjcy": TuyaBLECategorySensorMapping(
+        products={
+            "bf35a75vzk0jfhas": [
+                TuyaBLETemperatureMapping(
+                    dp_id=1,
+                    coefficient=10.0,
+                    force_add=True,
+                ),
+                TuyaBLESensorMapping(
+                    dp_id=2,
+                    description=SensorEntityDescription(
+                        key="humidity",
+                        device_class=SensorDeviceClass.HUMIDITY,
+                        native_unit_of_measurement=PERCENTAGE,
+                        state_class=SensorStateClass.MEASUREMENT,
+                    ),
+                    force_add=True,
+                ),
+                TuyaBLESensorMapping(
+                    dp_id=3,
+                    description=SensorEntityDescription(
+                        key="battery_state",
+                        icon="mdi:battery",
+                        device_class=SensorDeviceClass.ENUM,
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                        options=[
+                            BATTERY_STATE_LOW,
+                            BATTERY_STATE_NORMAL,
+                            BATTERY_STATE_HIGH,
+                        ],
+                    ),
+                    icons=[
+                        "mdi:battery-alert",
+                        "mdi:battery-50",
+                        "mdi:battery-check",
+                    ],
+                    force_add=True,
+                ),
+                TuyaBLEBatteryMapping(
+                    dp_id=4,
+                    force_add=True,
+                ),
+            ],
+        },
+    ),
     "znhsb": TuyaBLECategorySensorMapping(
         products={
             "cdlandip":  # Smart water bottle
