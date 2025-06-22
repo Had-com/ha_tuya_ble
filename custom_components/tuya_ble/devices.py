@@ -24,6 +24,8 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
 from .dp_map import TuyaBLETemperatureMapping, TuyaBLEHumidityMapping, TuyaBLEBatteryMapping
+from .dp_map import TuyaBLEDiagnosticMapping
+
 from home_assistant_bluetooth import BluetoothServiceInfoBleak
 from .tuya_ble import (
     AbstaractTuyaBLEDeviceManager,
