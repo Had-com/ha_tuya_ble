@@ -295,11 +295,11 @@ mapping: dict[str, TuyaBLECategorySensorMapping] = {
             "gvygg3m8": [
                 TuyaBLETemperatureMapping(
                     dp_id=5,
-                    coefficient=1.0,
+                    coefficient=10.0,
                     force_add=True,
                 ),
                 TuyaBLESensorMapping(
-                    dp_id=6,
+                    dp_id=15,
                     description=SensorEntityDescription(
                         key="humidity",
                         device_class=SensorDeviceClass.HUMIDITY,
