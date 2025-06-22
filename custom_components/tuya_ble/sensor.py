@@ -413,6 +413,9 @@ class TuyaBLESensor(TuyaBLEEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
+        for dp_id, dp in self._device.datapoints.items():
+            _LOGGER.debug("📡 Datapoint for %s -> dp_id=%s, type=%s, value=%s", self.name, dp_id, dp.type, dp.value)
+
         if self._mapping.getter is not None:
             self._mapping.getter(self)
         else:
