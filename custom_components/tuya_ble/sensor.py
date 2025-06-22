@@ -287,26 +287,6 @@ mapping: dict[str, TuyaBLECategorySensorMapping] = {
                     ),
                     force_add=True,
                 ),
-                TuyaBLESensorMapping(
-                    dp_id=3,
-                    description=SensorEntityDescription(
-                        key="battery_state",
-                        icon="mdi:battery",
-                        device_class=SensorDeviceClass.ENUM,
-                        entity_category=EntityCategory.DIAGNOSTIC,
-                        options=[
-                            BATTERY_STATE_LOW,
-                            BATTERY_STATE_NORMAL,
-                            BATTERY_STATE_HIGH,
-                        ],
-                    ),
-                    icons=[
-                        "mdi:battery-alert",
-                        "mdi:battery-50",
-                        "mdi:battery-check",
-                    ],
-                    force_add=True,
-                ),
                 TuyaBLEBatteryMapping(
                     dp_id=4,
                     force_add=True,
@@ -326,26 +306,6 @@ mapping: dict[str, TuyaBLECategorySensorMapping] = {
                         native_unit_of_measurement=PERCENTAGE,
                         state_class=SensorStateClass.MEASUREMENT,
                     ),
-                    force_add=True,
-                ),
-                TuyaBLESensorMapping(
-                    dp_id=3,
-                    description=SensorEntityDescription(
-                        key="battery_state",
-                        icon="mdi:battery",
-                        device_class=SensorDeviceClass.ENUM,
-                        entity_category=EntityCategory.DIAGNOSTIC,
-                        options=[
-                            BATTERY_STATE_LOW,
-                            BATTERY_STATE_NORMAL,
-                            BATTERY_STATE_HIGH,
-                        ],
-                    ),
-                    icons=[
-                        "mdi:battery-alert",
-                        "mdi:battery-50",
-                        "mdi:battery-check",
-                    ],
                     force_add=True,
                 ),
                 TuyaBLEBatteryMapping(
