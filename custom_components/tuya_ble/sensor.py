@@ -412,33 +412,28 @@ class TuyaBLESensor(TuyaBLEEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        _LOGGER.debug("📊 Raw datapoints for device %s: %s", self.name, self._device.datapoints._datapoints)
-        
-        try:
-            datapoints = dict(self._device.datapoints)
-        except Exception as e:
-            _LOGGER.error("❌ Could not convert datapoints to dict: %s", e)
-            datapoints = {}
-
-        for dp_id, dp in datapoints.items():
-            _LOGGER.debug("📡 Datapoint for %s -> dp_id=%s, type=%s, value=%s", self.name, dp_id, dp.type, dp.value)
-
+        datapoints = self._device.datapoints._datapoints
+    
+        if not datapoints:
+            _LOGGER.warning("⚠️ No datapoints found for %s (device may not be connected yet)", self.name)
+        else:
+            _LOGGER.debug("📊 Raw datapoints for device %s: %s", self.name, datapoints)
+            for dp_id, dp in datapoints.items():
+                _LOGGER.debug("📡 Datapoint for %s -> dp_id=%s, type=%s, value=%s", self.name, dp_id, dp.type, dp.value)
+    
         # עדכון ערך החיישן
         if self._mapping.getter is not None:
             self._mapping.getter(self)
         else:
             dp_id = self._mapping.dp_id
-            datapoints = self._device.datapoints._datapoints  # גישה ישירה למילון הפנימי
-            
-            datapoint = datapoints[dp_id] if dp_id in datapoints else None
+            datapoint = datapoints.get(dp_id)
             _LOGGER.debug(
                 "📡 Sensor update for %s: dp_id=%s, value=%s",
                 self.name,
                 dp_id,
                 datapoint.value if datapoint else None,
             )
-
-
+    
             if datapoint:
                 if datapoint.type == TuyaBLEDataPointType.DT_ENUM:
                     if self.entity_description.options is not None:
@@ -446,24 +441,24 @@ class TuyaBLESensor(TuyaBLEEntity, SensorEntity):
                             self._attr_native_value = self.entity_description.options[datapoint.value]
                         else:
                             self._attr_native_value = datapoint.value
-
+    
                     if self._mapping.icons is not None and 0 <= datapoint.value < len(self._mapping.icons):
                         self._attr_icon = self._mapping.icons[datapoint.value]
-
+    
                 elif datapoint.type == TuyaBLEDataPointType.DT_VALUE:
                     self._attr_native_value = datapoint.value / self._mapping.coefficient
-
+    
                 else:
                     self._attr_native_value = datapoint.value
-
+    
         self.async_write_ha_state()
-
     @property
     def available(self) -> bool:
-        """Return if entity is available."""
         result = super().available
+        _LOGGER.debug("🟢 Sensor %s availability before is_available: %s", self.name, result)
         if result and self._mapping.is_available:
             result = self._mapping.is_available(self, self._product)
+        _LOGGER.debug("🟢 Sensor %s final availability: %s", self.name, result)
         return result
 
 
