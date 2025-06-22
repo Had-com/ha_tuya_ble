@@ -23,7 +23,7 @@ from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
 )
-
+from .dp_map import TuyaBLETemperatureMapping, TuyaBLEHumidityMapping, TuyaBLEBatteryMapping
 from home_assistant_bluetooth import BluetoothServiceInfoBleak
 from .tuya_ble import (
     AbstaractTuyaBLEDeviceManager,
@@ -298,10 +298,12 @@ devices_database: dict[str, TuyaBLECategoryInfo] = {
                 TuyaBLEProductInfo(
                     name="SGS01 Soil Sensor",
                     sensors=[
-                        DPMapping(dp_id=5, name="temp_current", unit="°C", scale=10),
-                        DPMapping(dp_id=6, name="humidity", unit="%", scale=10),
-                        DPMapping(dp_id=3, name="battery_percentage", unit="%", scale=1),
+                        TuyaBLETemperatureMapping(dp_id=5, name="Temperature", unit="°C", scale=10),
+                        TuyaBLEHumidityMapping(dp_id=6, name="Humidity", unit="%", scale=10),
+                        TuyaBLEBatteryMapping(dp_id=3, name="Battery", unit="%", scale=1),
                         DPMapping(dp_id=9, name="temp_unit_convert", mapping={0: "c", 1: "f"}),
+                        DPMapping(dp_id=15, name="signal_strength", unit="dBm", scale=1)
+
                     ],
                 ),
             ),
