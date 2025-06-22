@@ -53,6 +53,7 @@ class TuyaBLEProductInfo:
     name: str
     manufacturer: str = DEVICE_DEF_MANUFACTURER
     fingerbot: TuyaBLEFingerbotInfo | None = None
+    sensors: list | None = None
 
 
 class TuyaBLEEntity(CoordinatorEntity):
@@ -322,14 +323,19 @@ devices_database: dict[str, TuyaBLECategoryInfo] = {
 def get_product_info_by_ids(
     category: str, product_id: str
 ) -> TuyaBLEProductInfo | None:
+    _LOGGER.debug("🔍 Looking up product info: category=%s, product_id=%s", category, product_id)
     category_info = devices_database.get(category)
     if category_info is not None:
         product_info = category_info.products.get(product_id)
         if product_info is not None:
+            _LOGGER.debug("✅ Found product info: %s", product_info)
             return product_info
+        _LOGGER.debug("ℹ️ Using fallback category info for category=%s", category)
         return category_info.info
     else:
+        _LOGGER.debug("❌ No category info found for category=%s", category)
         return None
+
 
 
 def get_device_product_info(device: TuyaBLEDevice) -> TuyaBLEProductInfo | None:
