@@ -300,7 +300,7 @@ devices_database: dict[str, TuyaBLECategoryInfo] = {
                 TuyaBLEProductInfo(
                     name="SGS01 Soil Sensor",
                     sensors=[
-                        TuyaBLETemperatureMapping(dp_id=5, name="Temperature", unit="°C", scale=10),
+                        TuyaBLETemperatureMapping(dp_id=5, name="Temperature", unit="°C", scale=1),
                         TuyaBLEHumidityMapping(dp_id=15, name="Humidity", unit="%", scale=1),  
                         TuyaBLEBatteryMapping(dp_id=3, name="Battery", unit="%", scale=1),
                         DPMapping(dp_id=9, name="temp_unit_convert", mapping={0: "c", 1: "f"}),
