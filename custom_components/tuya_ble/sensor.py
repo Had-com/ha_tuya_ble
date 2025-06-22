@@ -409,52 +409,44 @@ class TuyaBLESensor(TuyaBLEEntity, SensorEntity):
         super().__init__(hass, coordinator, device, product, mapping.description)
         self._mapping = mapping
 
-@callback
-def _handle_coordinator_update(self) -> None:
-    """Handle updated data from the coordinator."""
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        _LOGGER.debug("📊 Raw datapoints for device %s: %s", self.name, self._device.datapoints._datapoints)
+        
+        try:
+            datapoints = dict(self._device.datapoints)
+        except Exception as e:
+            _LOGGER.error("❌ Could not convert datapoints to dict: %s", e)
+            datapoints = {}
 
-    try:
-        datapoints = dict(self._device.datapoints)
-    except Exception as e:
-        _LOGGER.error("❌ Could not convert datapoints to dict: %s", e)
-        datapoints = {}
+        for dp_id, dp in datapoints.items():
+            _LOGGER.debug("📡 Datapoint for %s -> dp_id=%s, type=%s, value=%s", self.name, dp_id, dp.type, dp.value)
 
-    for dp_id, dp in datapoints.items():
-        _LOGGER.debug("📡 Datapoint for %s -> dp_id=%s, type=%s, value=%s", self.name, dp_id, dp.type, dp.value)
-
-    if self._mapping.getter is not None:
-        self._mapping.getter(self)
-    else:
-        datapoint = self._device.datapoints.get(self._mapping.dp_id)
-        _LOGGER.debug("📡 Sensor update for %s: dp_id=%s, value=%s", self.name, self._mapping.dp_id, datapoint.value if datapoint else None)
-
+        # עדכון ערך החיישן
         if self._mapping.getter is not None:
             self._mapping.getter(self)
         else:
-            datapoint = self._device.datapoints[self._mapping.dp_id]
+            datapoint = self._device.datapoints.get(self._mapping.dp_id)
             _LOGGER.debug("📡 Sensor update for %s: dp_id=%s, value=%s", self.name, self._mapping.dp_id, datapoint.value if datapoint else None)
+
             if datapoint:
                 if datapoint.type == TuyaBLEDataPointType.DT_ENUM:
                     if self.entity_description.options is not None:
-                        if datapoint.value >= 0 and datapoint.value < len(
-                            self.entity_description.options
-                        ):
-                            self._attr_native_value = self.entity_description.options[
-                                datapoint.value
-                            ]
+                        if 0 <= datapoint.value < len(self.entity_description.options):
+                            self._attr_native_value = self.entity_description.options[datapoint.value]
                         else:
                             self._attr_native_value = datapoint.value
-                    if self._mapping.icons is not None:
-                        if datapoint.value >= 0 and datapoint.value < len(
-                            self._mapping.icons
-                        ):
-                            self._attr_icon = self._mapping.icons[datapoint.value]
+
+                    if self._mapping.icons is not None and 0 <= datapoint.value < len(self._mapping.icons):
+                        self._attr_icon = self._mapping.icons[datapoint.value]
+
                 elif datapoint.type == TuyaBLEDataPointType.DT_VALUE:
-                    self._attr_native_value = (
-                        datapoint.value / self._mapping.coefficient
-                    )
+                    self._attr_native_value = datapoint.value / self._mapping.coefficient
+
                 else:
                     self._attr_native_value = datapoint.value
+
         self.async_write_ha_state()
 
     @property
@@ -464,6 +456,7 @@ def _handle_coordinator_update(self) -> None:
         if result and self._mapping.is_available:
             result = self._mapping.is_available(self, self._product)
         return result
+
 
 
 async def async_setup_entry(
