@@ -410,11 +410,24 @@ class TuyaBLESensor(TuyaBLEEntity, SensorEntity):
         super().__init__(hass, coordinator, device, product, mapping.description)
         self._mapping = mapping
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        for dp_id, dp in self._device.datapoints.as_dict().items():
-            _LOGGER.debug("📡 Datapoint for %s -> dp_id=%s, type=%s, value=%s", self.name, dp_id, dp.type, dp.value)
+@callback
+def _handle_coordinator_update(self) -> None:
+    """Handle updated data from the coordinator."""
+
+    try:
+        datapoints = dict(self._device.datapoints)
+    except Exception as e:
+        _LOGGER.error("❌ Could not convert datapoints to dict: %s", e)
+        datapoints = {}
+
+    for dp_id, dp in datapoints.items():
+        _LOGGER.debug("📡 Datapoint for %s -> dp_id=%s, type=%s, value=%s", self.name, dp_id, dp.type, dp.value)
+
+    if self._mapping.getter is not None:
+        self._mapping.getter(self)
+    else:
+        datapoint = self._device.datapoints.get(self._mapping.dp_id)
+        _LOGGER.debug("📡 Sensor update for %s: dp_id=%s, value=%s", self.name, self._mapping.dp_id, datapoint.value if datapoint else None)
 
         if self._mapping.getter is not None:
             self._mapping.getter(self)
