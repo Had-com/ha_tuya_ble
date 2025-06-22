@@ -298,9 +298,9 @@ devices_database: dict[str, TuyaBLECategoryInfo] = {
                 TuyaBLEProductInfo(
                     name="SGS01 Soil Sensor",
                     sensors=[
-                        DPMapping(dp_id=5, name="temp_current", unit="°C", scale=1),
-                        DPMapping(dp_id=6, name="humidity", unit="%", scale=0),
-                        DPMapping(dp_id=3, name="battery_percentage", unit="%", scale=0),
+                        DPMapping(dp_id=5, name="temp_current", unit="°C", scale=10),
+                        DPMapping(dp_id=6, name="humidity", unit="%", scale=10),
+                        DPMapping(dp_id=3, name="battery_percentage", unit="%", scale=1),
                         DPMapping(dp_id=9, name="temp_unit_convert", mapping={0: "c", 1: "f"}),
                     ],
                 ),
