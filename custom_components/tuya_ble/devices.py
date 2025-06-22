@@ -1,7 +1,13 @@
 """The Tuya BLE integration."""
 from __future__ import annotations
 from dataclasses import dataclass
-
+@dataclass
+class DPMapping:
+    dp_id: int
+    name: str
+    unit: str | None = None
+    scale: float = 1.0
+    mapping: dict[int, str] | None = None
 import logging
 from homeassistant.const import CONF_ADDRESS, CONF_DEVICE_ID
 
