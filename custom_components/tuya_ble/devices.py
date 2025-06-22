@@ -25,7 +25,6 @@ from .tuya_ble import (
     TuyaBLEDevice,
     TuyaBLEDeviceCredentials,
 )
-from .sensor import DPMapping
 from .cloud import HASSTuyaBLEDeviceManager
 from .const import (
     DEVICE_DEF_MANUFACTURER,
