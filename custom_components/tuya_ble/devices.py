@@ -301,8 +301,8 @@ devices_database: dict[str, TuyaBLECategoryInfo] = {
                     name="SGS01 Soil Sensor",
                     sensors=[
                             TuyaBLETemperatureMapping(dp_id=5, name="Temperature", unit="°C", scale=10),
-                            TuyaBLEHumidityMapping(dp_id=15, name="Humidity", unit="%", scale=1),
-                            TuyaBLEBatteryMapping(dp_id=3, name="Battery", unit="%", scale=1),
+                            TuyaBLEHumidityMapping(dp_id=3, name="Humidity", unit="%", scale=1),
+                            TuyaBLEBatteryMapping(dp_id=15, name="Battery", unit="%", scale=1),
                             DPMapping(dp_id=9, name="temp_unit_convert", mapping={0: "c", 1: "f"}),
                             DPMapping(dp_id=14, name="battery_level", mapping={0: "low", 1: "medium", 2: "high"}),
                             DPMapping(dp_id=6, name="unused_humidity", unit="%", scale=1),
