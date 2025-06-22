@@ -420,7 +420,17 @@ class TuyaBLESensor(TuyaBLEEntity, SensorEntity):
             _LOGGER.debug("📊 Raw datapoints for device %s: %s", self.name, datapoints)
             for dp_id, dp in datapoints.items():
                 _LOGGER.debug("📡 Datapoint for %s -> dp_id=%s, type=%s, value=%s", self.name, dp_id, dp.type, dp.value)
-    
+        for dp_id in range(1, 21):
+            datapoint = datapoints.get(dp_id)
+            if datapoint:
+                _LOGGER.debug(
+                    "🔍 Full DP check: dp_id=%s, type=%s, value=%s",
+                    dp_id,
+                    datapoint.type,
+                    datapoint.value,
+                )
+            else:
+                _LOGGER.debug("🔍 Full DP check: dp_id=%s not found", dp_id)    
         # עדכון ערך החיישן
         if self._mapping.getter is not None:
             self._mapping.getter(self)
