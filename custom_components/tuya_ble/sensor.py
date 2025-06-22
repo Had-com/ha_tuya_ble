@@ -427,8 +427,17 @@ class TuyaBLESensor(TuyaBLEEntity, SensorEntity):
         if self._mapping.getter is not None:
             self._mapping.getter(self)
         else:
-            datapoint = self._device.datapoints.get(self._mapping.dp_id)
-            _LOGGER.debug("📡 Sensor update for %s: dp_id=%s, value=%s", self.name, self._mapping.dp_id, datapoint.value if datapoint else None)
+            dp_id = self._mapping.dp_id
+            datapoints = self._device.datapoints._datapoints  # גישה ישירה למילון הפנימי
+            
+            datapoint = datapoints[dp_id] if dp_id in datapoints else None
+            _LOGGER.debug(
+                "📡 Sensor update for %s: dp_id=%s, value=%s",
+                self.name,
+                dp_id,
+                datapoint.value if datapoint else None,
+            )
+
 
             if datapoint:
                 if datapoint.type == TuyaBLEDataPointType.DT_ENUM:
