@@ -1016,6 +1016,7 @@ class TuyaBLEDevice:
         datapoints: list[TuyaBLEDataPoint] = []
 
         pos = start_pos
+        _LOGGER.debug("%s: 🧪 Raw DPS data: %s", self.address, data.hex())
         while len(data) - pos >= 4:
             id: int = data[pos]
             pos += 1
@@ -1039,7 +1040,7 @@ class TuyaBLEDevice:
                     value = int.from_bytes(raw_value, "big", signed=True)
                 case TuyaBLEDataPointType.DT_STRING:
                     value = raw_value.decode()
-
+            _LOGGER.debug("%s: ➕ Raw DP id=%s, type=%s, len=%s, raw=%s", self.address, id, type.name, data_len, raw_value.hex())
             _LOGGER.debug(
                 "%s: Received datapoint update, id: %s, type: %s: value: %s",
                 self.address,
