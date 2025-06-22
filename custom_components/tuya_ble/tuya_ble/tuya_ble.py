@@ -1048,19 +1048,20 @@ class TuyaBLEDevice:
                 value,
             )
             self._datapoints._update_from_device(id, timestamp, flags, type, value)
+            datapoints.append(self._datapoints[id])
+            pos = next_pos
 
-            _LOGGER.debug("%s: 📊 All current datapoints: %s", self.address, {
+        self._fire_callbacks(datapoints)
+        _LOGGER.debug(
+            "%s: 📊 All current datapoints after update: %s",
+            self.address,
+            {
                 dp_id: {
                     "value": dp.value,
                     "type": dp.type.name
                 } for dp_id, dp in self._datapoints._datapoints.items()
-            })
-            
-            datapoints.append(self._datapoints[id])
-
-            pos = next_pos
-
-        self._fire_callbacks(datapoints)
+            }
+        )
 
     def _handle_command_or_response(
         self, seq_num: int, response_to: int, code: TuyaBLECode, data: bytes
