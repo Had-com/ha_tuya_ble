@@ -1,7 +1,13 @@
 """The Tuya BLE integration."""
 from __future__ import annotations
 from dataclasses import dataclass
-
+@dataclass
+class DPMapping:
+    dp_id: int
+    name: str
+    unit: str | None = None
+    scale: float = 1.0
+    mapping: dict[int, str] | None = None
 import logging
 from homeassistant.const import CONF_ADDRESS, CONF_DEVICE_ID
 
@@ -17,6 +23,8 @@ from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
 )
+from .dp_map import TuyaBLETemperatureMapping, TuyaBLEHumidityMapping, TuyaBLEBatteryMapping
+from .dp_map import TuyaBLEDiagnosticMapping
 
 from home_assistant_bluetooth import BluetoothServiceInfoBleak
 from .tuya_ble import (
@@ -25,7 +33,6 @@ from .tuya_ble import (
     TuyaBLEDevice,
     TuyaBLEDeviceCredentials,
 )
-
 from .cloud import HASSTuyaBLEDeviceManager
 from .const import (
     DEVICE_DEF_MANUFACTURER,
@@ -54,6 +61,7 @@ class TuyaBLEProductInfo:
     name: str
     manufacturer: str = DEVICE_DEF_MANUFACTURER
     fingerbot: TuyaBLEFingerbotInfo | None = None
+    sensors: list | None = None
 
 
 class TuyaBLEEntity(CoordinatorEntity):
@@ -285,6 +293,24 @@ devices_database: dict[str, TuyaBLECategoryInfo] = {
             ),
         },
     ),
+    "zwjcy": TuyaBLECategoryInfo(
+        products={
+            **dict.fromkeys(
+                ["bf35a75vzk0jfhas", "gvygg3m8"],
+                TuyaBLEProductInfo(
+                    name="SGS01 Soil Sensor",
+                    sensors=[
+                            TuyaBLETemperatureMapping(dp_id=5, name="Temperature", unit="°C", scale=10),
+                            TuyaBLEHumidityMapping(dp_id=3, name="Humidity", unit="%", scale=1),
+                            TuyaBLEBatteryMapping(dp_id=15, name="Battery", unit="%", scale=1),
+                            DPMapping(dp_id=9, name="temp_unit_convert", mapping={0: "c", 1: "f"}),
+                            DPMapping(dp_id=14, name="battery_level", mapping={0: "low", 1: "medium", 2: "high"}),
+                            DPMapping(dp_id=6, name="unused_humidity", unit="%", scale=1),
+                    ],
+                ),
+            ),
+        },
+    ),
     "znhsb": TuyaBLECategoryInfo(
         products={
             "cdlandip":  # device product_id
@@ -307,14 +333,19 @@ devices_database: dict[str, TuyaBLECategoryInfo] = {
 def get_product_info_by_ids(
     category: str, product_id: str
 ) -> TuyaBLEProductInfo | None:
+    _LOGGER.debug("🔍 Looking up product info: category=%s, product_id=%s", category, product_id)
     category_info = devices_database.get(category)
     if category_info is not None:
         product_info = category_info.products.get(product_id)
         if product_info is not None:
+            _LOGGER.debug("✅ Found product info: %s", product_info)
             return product_info
+        _LOGGER.debug("ℹ️ Using fallback category info for category=%s", category)
         return category_info.info
     else:
+        _LOGGER.debug("❌ No category info found for category=%s", category)
         return None
+
 
 
 def get_device_product_info(device: TuyaBLEDevice) -> TuyaBLEProductInfo | None:

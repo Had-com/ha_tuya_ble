@@ -1016,6 +1016,7 @@ class TuyaBLEDevice:
         datapoints: list[TuyaBLEDataPoint] = []
 
         pos = start_pos
+        _LOGGER.debug("%s: 🧪 Raw DPS data: %s", self.address, data.hex())
         while len(data) - pos >= 4:
             id: int = data[pos]
             pos += 1
@@ -1039,7 +1040,7 @@ class TuyaBLEDevice:
                     value = int.from_bytes(raw_value, "big", signed=True)
                 case TuyaBLEDataPointType.DT_STRING:
                     value = raw_value.decode()
-
+            _LOGGER.debug("%s: ➕ Raw DP id=%s, type=%s, len=%s, raw=%s", self.address, id, type.name, data_len, raw_value.hex())
             _LOGGER.debug(
                 "%s: Received datapoint update, id: %s, type: %s: value: %s",
                 self.address,
@@ -1047,12 +1048,21 @@ class TuyaBLEDevice:
                 type.name,
                 value,
             )
-            self._datapoints._update_from_device(
-                id, timestamp, flags, type, value)
+            self._datapoints._update_from_device(id, timestamp, flags, type, value)
             datapoints.append(self._datapoints[id])
             pos = next_pos
 
         self._fire_callbacks(datapoints)
+        _LOGGER.debug(
+            "%s: 📊 All current datapoints after update: %s",
+            self.address,
+            {
+                dp_id: {
+                    "value": dp.value,
+                    "type": dp.type.name
+                } for dp_id, dp in self._datapoints._datapoints.items()
+            }
+        )
 
     def _handle_command_or_response(
         self, seq_num: int, response_to: int, code: TuyaBLECode, data: bytes

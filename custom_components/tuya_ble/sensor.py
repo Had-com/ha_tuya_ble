@@ -269,6 +269,51 @@ mapping: dict[str, TuyaBLECategorySensorMapping] = {
             ],
         },
     ),
+    "zwjcy": TuyaBLECategorySensorMapping(
+        products={
+            "bf35a75vzk0jfhas": [
+                TuyaBLETemperatureMapping(
+                    dp_id=1,
+                    coefficient=10.0,
+                    force_add=True,
+                ),
+                TuyaBLESensorMapping(
+                    dp_id=2,
+                    description=SensorEntityDescription(
+                        key="humidity",
+                        device_class=SensorDeviceClass.HUMIDITY,
+                        native_unit_of_measurement=PERCENTAGE,
+                        state_class=SensorStateClass.MEASUREMENT,
+                    ),
+                    force_add=True,
+                ),
+                TuyaBLEBatteryMapping(
+                    dp_id=4,
+                    force_add=True,
+                ),
+            ],
+            "gvygg3m8": [
+                TuyaBLETemperatureMapping(
+                    dp_id=5,
+                    coefficient=10.0,
+                    force_add=True,
+                ),
+                TuyaBLESensorMapping(
+                    dp_id=15,
+                    description=SensorEntityDescription(
+                        key="humidity",
+                        device_class=SensorDeviceClass.HUMIDITY,
+                        native_unit_of_measurement=PERCENTAGE,
+                        state_class=SensorStateClass.MEASUREMENT,
+                    ),
+                    force_add=True,
+                ),
+                TuyaBLEBatteryMapping(
+                    dp_id=3,
+                    force_add=True,
+                ),
+            ]        },
+    ),
     "znhsb": TuyaBLECategorySensorMapping(
         products={
             "cdlandip":  # Smart water bottle
@@ -367,41 +412,65 @@ class TuyaBLESensor(TuyaBLEEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
+        datapoints = self._device.datapoints._datapoints
+    
+        if not datapoints:
+            _LOGGER.warning("⚠️ No datapoints found for %s (device may not be connected yet)", self.name)
+        else:
+            _LOGGER.debug("📊 Raw datapoints for device %s: %s", self.name, datapoints)
+            for dp_id, dp in datapoints.items():
+                _LOGGER.debug("📡 Datapoint for %s -> dp_id=%s, type=%s, value=%s", self.name, dp_id, dp.type, dp.value)
+        for dp_id in range(1, 21):
+            datapoint = datapoints.get(dp_id)
+            if datapoint:
+                _LOGGER.debug(
+                    "🔍 Full DP check: dp_id=%s, type=%s, value=%s",
+                    dp_id,
+                    datapoint.type,
+                    datapoint.value,
+                )
+            else:
+                _LOGGER.debug("🔍 Full DP check: dp_id=%s not found", dp_id)    
+        # עדכון ערך החיישן
         if self._mapping.getter is not None:
             self._mapping.getter(self)
         else:
-            datapoint = self._device.datapoints[self._mapping.dp_id]
+            dp_id = self._mapping.dp_id
+            datapoint = datapoints.get(dp_id)
+            _LOGGER.debug(
+                "📡 Sensor update for %s: dp_id=%s, value=%s",
+                self.name,
+                dp_id,
+                datapoint.value if datapoint else None,
+            )
+    
             if datapoint:
                 if datapoint.type == TuyaBLEDataPointType.DT_ENUM:
                     if self.entity_description.options is not None:
-                        if datapoint.value >= 0 and datapoint.value < len(
-                            self.entity_description.options
-                        ):
-                            self._attr_native_value = self.entity_description.options[
-                                datapoint.value
-                            ]
+                        if 0 <= datapoint.value < len(self.entity_description.options):
+                            self._attr_native_value = self.entity_description.options[datapoint.value]
                         else:
                             self._attr_native_value = datapoint.value
-                    if self._mapping.icons is not None:
-                        if datapoint.value >= 0 and datapoint.value < len(
-                            self._mapping.icons
-                        ):
-                            self._attr_icon = self._mapping.icons[datapoint.value]
+    
+                    if self._mapping.icons is not None and 0 <= datapoint.value < len(self._mapping.icons):
+                        self._attr_icon = self._mapping.icons[datapoint.value]
+    
                 elif datapoint.type == TuyaBLEDataPointType.DT_VALUE:
-                    self._attr_native_value = (
-                        datapoint.value / self._mapping.coefficient
-                    )
+                    self._attr_native_value = datapoint.value / self._mapping.coefficient
+    
                 else:
                     self._attr_native_value = datapoint.value
+    
         self.async_write_ha_state()
-
     @property
     def available(self) -> bool:
-        """Return if entity is available."""
         result = super().available
+        _LOGGER.debug("🟢 Sensor %s availability before is_available: %s", self.name, result)
         if result and self._mapping.is_available:
             result = self._mapping.is_available(self, self._product)
+        _LOGGER.debug("🟢 Sensor %s final availability: %s", self.name, result)
         return result
+
 
 
 async def async_setup_entry(
@@ -409,6 +478,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    _LOGGER.info("✅ Tuya BLE sensor integration loaded - custom version in use")
     """Set up the Tuya BLE sensors."""
     data: TuyaBLEData = hass.data[DOMAIN][entry.entry_id]
     mappings = get_mapping_by_device(data.device)
