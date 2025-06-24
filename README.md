@@ -1,5 +1,5 @@
 # Home Assistant support for Tuya BLE devices
-update 43b0938
+update 6a20b01 v0.0.1
 ## Overview
 
 This integration supports Tuya devices connected via BLE.
