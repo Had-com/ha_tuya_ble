@@ -292,14 +292,14 @@ mapping: dict[str, TuyaBLECategorySensorMapping] = {
                     force_add=True,
                 ),
             ],
-            "gvygg3m8": [
+            "gvygg3m8": [ # Soil moisture sensor
                 TuyaBLETemperatureMapping(
                     dp_id=5,
                     coefficient=10.0,
                     force_add=True,
                 ),
                 TuyaBLESensorMapping(
-                    dp_id=15,
+                    dp_id=3,
                     description=SensorEntityDescription(
                         key="humidity",
                         device_class=SensorDeviceClass.HUMIDITY,
@@ -309,7 +309,7 @@ mapping: dict[str, TuyaBLECategorySensorMapping] = {
                     force_add=True,
                 ),
                 TuyaBLEBatteryMapping(
-                    dp_id=3,
+                    dp_id=15,
                     force_add=True,
                 ),
             ]        },
